@@ -1,5 +1,8 @@
 (ns stasis.core
-  (:use [hiccup core util page])
+  (:require [clj-yaml.core :as yaml]
+            [clojure.java.io :as io])
+  (:use [hiccup core util page]
+        [markdown.core :only (md-to-html-string)])
   (:import [org.apache.commons.io FilenameUtils]))
 
 
@@ -12,7 +15,7 @@
   [dir & {ext :ext}]
   (let [files (map #(.toString %1)
                    (filter #(.isFile %1)
-                           (file-seq (clojure.java.io/file base-dir dir))))]
+                           (file-seq (io/file base-dir dir))))]
     (if ext
       (filter #(= (FilenameUtils/getExtension %1) ext) files)
       files)))
@@ -32,6 +35,19 @@
   (-> path
       (slurp)
       (read-string)))
+
+
+(defn process-file [filename]
+  (with-open [reader (io/reader (io/file base-dir filename))]
+    (count (line-seq reader))))
+
+
+(defn parse-frontmatter
+  [data]
+  (let [[_ header body] (re-find #"(?s)^---\n(.*)---\n(.*)" data)]
+    (if header
+      {:body body :context (yaml/parse-string header)}
+      {:body data})))
 
 
 ; templates is a map of the templates data structures
