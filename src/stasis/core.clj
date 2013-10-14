@@ -44,7 +44,7 @@
 
 (defn parse-frontmatter
   [data]
-  (let [[_ header body] (re-find #"(?s)^---\n(.*)---\n(.*)" data)]
+  (let [[_ header body] (re-find #"(?s)^---\n(.*?)---\n(.*)" data)]
     (if header
       {:body body :context (yaml/parse-string header)}
       {:body data})))
