@@ -46,8 +46,8 @@
   [data]
   (let [[_ header body] (re-find #"(?s)^---\n(.*?)---\n(.*)" data)]
     (if header
-      {:body body :context (yaml/parse-string header)}
-      {:body data})))
+      {:body (md-to-html-string body) :context (yaml/parse-string header)}
+      {:body (md-to-html-string data)})))
 
 
 ; templates is a map of the templates data structures
